@@ -108,8 +108,8 @@ If the library is compiled correctly, there should be a file named "rasterize_tr
 1. Clone the repository 
 
 ```bash
-git clone https://github.com/Microsoft/Deep3DFaceReconstruction
-cd Deep3DFaceReconstruction
+https://github.com/ngdangha/Deep3D
+cd Deep3D
 ```
 
 2. Download the Basel Face Model. Due to the license agreement of Basel Face Model, you have to download the BFM09 model after submitting an application on its [home page](https://faces.dmi.unibas.ch/bfm/main.php?nav=1-2&id=downloads). After getting the access to BFM data, download "01_MorphableModel.mat" and put it into ./BFM subfolder.
