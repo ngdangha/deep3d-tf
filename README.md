@@ -80,7 +80,7 @@ If you use anaconda, run the following (make sure /usr/local/cuda link to cuda-9
 conda create -n deep3d python=3.6
 source activate deep3d
 pip install tensorflow-gpu==1.12.0
-pip install pillow argparse scipy
+pip install pillow argparse scipy trimesh pyrender mtcnn
 ```
 
 Alternatively, you can install tensorflow via conda install (no need to set cuda version in this way):
