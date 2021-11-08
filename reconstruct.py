@@ -151,10 +151,6 @@ def reconstruct():
 		recon_img = FaceReconstructor.render_imgs
 		tri = FaceReconstructor.facemodel.face_buf
 
-		# print("Face Texture: ", face_texture, "\n")
-		# print("Face Color: ", face_color, "\n")
-		# print("Landmarks 2D: ", landmarks_2d, "\n")
-
 		with tf.Session() as sess:
 
 			#print("Face Shape: ", sess.run(face_shape), "\n")
@@ -180,25 +176,13 @@ def reconstruct():
 				coeff_,face_shape_,face_texture_,face_color_,landmarks_2d_,recon_img_,tri_ = sess.run([coeff,\
 					face_shape,face_texture,face_color,landmarks_2d,recon_img,tri],feed_dict = {images: input_img})
 
-				# print("Coefficients: ", coeff_, "\n")
-
 				# reshape outputs
-
-				# print("Face Shape Before Squeeze: ", face_shape_, "\n")
-				# print("Face Texture Before Squeeze: ", face_texture_, "\n")
-				# print("Face Color Before Squeeze: ", face_color_, "\n")
-				# print("Landmarks 2D Before Squeeze: ", landmarks_2d_, "\n")
 
 				input_img = np.squeeze(input_img)
 				face_shape_ = np.squeeze(face_shape_, (0))
 				face_texture_ = np.squeeze(face_texture_, (0))
 				face_color_ = np.squeeze(face_color_, (0))
 				landmarks_2d_ = np.squeeze(landmarks_2d_, (0))
-
-				# print("Face Shape After Squeeze: ", face_shape_, "\n")
-				# print("Face Texture After Squeeze: ", face_texture_, "\n")
-				# print("Face Color After Squeeze: ", face_color_, "\n")
-				# print("Landmarks 2D After Squeeze: ", landmarks_2d_, "\n")
 
 				# save output files
 				if not is_windows:
@@ -208,7 +192,7 @@ def reconstruct():
 						'face_shape':face_shape_,'face_texture':face_texture_,'face_color':face_color_,'lm_68p':landmarks_2d_,'lm_5p':lm_new})
 				
 				save_obj(os.path.join(reconstruct_path,file.split(os.path.sep)[-1].replace('.png','_mesh.obj').replace('.PNG','_mesh.obj').replace('.jpg','_mesh.obj').replace('.JPG','_mesh.obj')),face_shape_,tri_,np.clip(face_color_,0,255)/255) # 3D reconstruction face (in canonical view)
-				save_shape_txt(os.path.join(reconstruct_path,file.split(os.path.sep)[-1].replace('.png','_shape.txt').replace('.PNG','_shape_txt').replace('.jpg','_shape.txt').replace('.JPG','_shape.txt')),face_shape_,tri_,np.clip(face_color_,0,255)/255)
+				# save_shape_txt(os.path.join(reconstruct_path,file.split(os.path.sep)[-1].replace('.png','_shape.txt').replace('.PNG','_shape_txt').replace('.jpg','_shape.txt').replace('.JPG','_shape.txt')),face_shape_,tri_,np.clip(face_color_,0,255)/255)
 	
 	#return timer
 	toc = time.perf_counter()
@@ -259,7 +243,7 @@ def rasterize():
 	for file in object_list:
 		count += 1
 		print(count)
-		tic1 = time.perf_counter()
+		
 		input_mesh = trimesh.load(file)
 		mesh = pyrender.Mesh.from_trimesh(input_mesh)
 		nm = pyrender.Node(mesh=mesh, matrix=np.eye(4))
