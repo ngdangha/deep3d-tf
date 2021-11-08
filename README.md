@@ -120,10 +120,10 @@ cd Deep3DFaceReconstruction
 
 5. Download the pre-trained [reconstruction network](https://drive.google.com/file/d/176LCdUDxAj7T2awQ5knPMPawq5Q2RUWM/view?usp=sharing), unzip it and put "FaceReconModel.pb" into ./network subfolder.
 
-6. Run the demo code.
+6. Run the reconstruct 3D code and generate 2D image.
 
 ```
-python demo.py
+python reconstruct.py
 ```
 
 7. ./input subfolder contains several test images and ./output subfolder stores their reconstruction results. For each input test image, two output files can be obtained after running the demo code:
