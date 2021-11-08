@@ -38,8 +38,6 @@ def save_landmark(path, lex, ley, rex, rey, nx, ny, mlx, mly, mrx, mry):
 #main process
 n = 0
 
-#initialize tic
-
 for file in img_list:
 	n += 1
 	print(n)
