@@ -28,9 +28,9 @@ class BFM():
 		self.skin_mask = tf.squeeze(tf.constant(model['skinmask'])) # vertex indices for pre-defined skin region to compute reflectance loss
 		self.keypoints = tf.squeeze(tf.constant(model['keypoints'])) # vertex indices for 68 landmarks. starts from 1. [68,1]
 
-		np_mean = np.loadtxt('output/mean_shape/25_mean.txt', dtype='f', delimiter= ' ')
-		np_mean = np.reshape(np_mean, (-1, 107127))
-		self.tf_mean = tf.constant(np_mean)
+		# np_mean = np.loadtxt('output/mean_shape/25_mean.txt', dtype='f', delimiter= ' ')
+		# np_mean = np.reshape(np_mean, (-1, 107127))
+		# self.tf_mean = tf.constant(np_mean)
 
 # fm = BFM()
 # print(fm.meanshape.get_shape())
