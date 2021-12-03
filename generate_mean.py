@@ -32,7 +32,7 @@ def save_shape_tf(path, s):
 
 #set up input and output path
 input_path = 'output'
-mean_path = 'output/mean_shape'
+mean_path = 'mean'
 
 if not os.path.exists(mean_path):
     os.makedirs(mean_path)
@@ -40,7 +40,7 @@ if not os.path.exists(mean_path):
 #set up variables
 count = 0
 sum_matrix = np.zeros((35709, 3))
-pos_matrix = np.loadtxt('output/mean_shape/pos.obj', dtype='f', delimiter= ' ')
+indices_matrix = np.loadtxt('mean/pos.txt', dtype='f', delimiter= ' ')
 
 #main process
 shape_list = glob.glob(input_path + '/' + '*.txt')
@@ -53,12 +53,11 @@ for file in shape_list:
 
 #calculate mean shape
 mean_matrix = sum_matrix/count
-tf_matrix = np.reshape(mean_matrix, (-1, 107127))
+# tf_matrix = np.reshape(mean_matrix, (-1, 107127))
 
 # print(np.shape(tf_matrix))
-# print(range(len(tf_matrix)))
 
 #save mean shape as object file
 save_shape_np(mean_path + '/' + str(count) + '_mean.txt', mean_matrix)
 # save_shape_tf(mean_path + '/' + str(count) + '_mean.txt', tf_matrix)
-save_obj(mean_path + '/' + str(count) + '_mean.obj', mean_matrix, pos_matrix)
+save_obj(mean_path + '/' + str(count) + '_mean.obj', mean_matrix, indices_matrix)

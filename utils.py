@@ -134,7 +134,19 @@ def save_obj(path,v,f,c):
 	with open(path,'w') as file:
 		for i in range(len(v)):
 			file.write('v %f %f %f %f %f %f\n'%(v[i,0],v[i,1],v[i,2],c[i,0],c[i,1],c[i,2]))
-			# file.write('v %f %f %f\n'%(v[i,0],v[i,1],v[i,2]))
+
+		file.write('\n')
+
+		for i in range(len(f)):
+			file.write('f %d %d %d\n'%(f[i,0],f[i,1],f[i,2]))
+
+	file.close()
+
+#save 3D shape
+def save_shape(path,v,f):
+	with open(path,'w') as file:
+		for i in range(len(v)):
+			file.write('v %f %f %f\n'%(v[i,0],v[i,1],v[i,2]))
 
 		file.write('\n')
 
@@ -144,7 +156,7 @@ def save_obj(path,v,f,c):
 	file.close()
 
 #save shape value as text file
-def save_shape_txt(path,v,f,c):
+def save_shape_txt(path,v):
 	with open(path,'w') as file:
 		for i in range(len(v)):
 			file.write('%f %f %f\n'%(v[i,0],v[i,1],v[i,2]))
@@ -163,3 +175,14 @@ def save_landmark(path, lex, ley, rex, rey, nx, ny, mlx, mly, mrx, mry):
 		file.write('%s\t%s\n'%(mrx, mry))
 
 	file.close()
+
+#create uint8 array for cv2
+def normalize8(I):
+	mn = I.min()
+	mx = I.max()
+
+	mx -= mn
+
+	I = ((I - mn)/mx) * 255
+
+	return I.astype(np.uint8)

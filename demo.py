@@ -135,8 +135,9 @@ def demo():
 					cv2.imwrite(os.path.join(image_test_path, file.split(os.path.sep)[-1]), recon_img_)
 					savemat(os.path.join(save_path,file.split(os.path.sep)[-1].replace('.png','.mat').replace('.PNG','.mat').replace('jpg','mat').replace('JPG','mat')),{'cropped_img':input_img[:,:,::-1],'recon_img':recon_img_,'coeff':coeff_,\
 						'face_shape':face_shape_,'face_texture':face_texture_,'face_color':face_color_,'lm_68p':landmarks_2d_,'lm_5p':lm_new})
-				save_obj(os.path.join(save_path,file.split(os.path.sep)[-1].replace('.png','_mesh.obj').replace('.PNG','_mesh.obj').replace('.jpg','_mesh.obj').replace('.JPG','_mesh.obj')),face_shape_,tri_,np.clip(face_color_,0,255)/255) # 3D reconstruction face (in canonical view)
-				# save_shape_txt(os.path.join(save_path,file.split(os.path.sep)[-1].replace('.png','_shape.txt').replace('.PNG','_shape_txt').replace('.jpg','_shape.txt').replace('.JPG','_shape.txt')),face_shape_,tri_,np.clip(face_color_,0,255)/255)
+				# save_obj(os.path.join(save_path,file.split(os.path.sep)[-1].replace('.png','_mesh.obj').replace('.PNG','_mesh.obj').replace('.jpg','_mesh.obj').replace('.JPG','_mesh.obj')),face_shape_,tri_,np.clip(face_color_,0,255)/255) # 3D reconstruction face (in canonical view)
+				save_shape(os.path.join(save_path,file.split(os.path.sep)[-1].replace('.png','_mesh.obj').replace('.PNG','_mesh.obj').replace('.jpg','_mesh.obj').replace('.JPG','_mesh.obj')),face_shape_,tri_)
+				# save_shape_txt(os.path.join(save_path,file.split(os.path.sep)[-1].replace('.png','_shape.txt').replace('.PNG','_shape_txt').replace('.jpg','_shape.txt').replace('.JPG','_shape.txt')),face_shape_)
 	
 	#return timer
 	toc = time.perf_counter()

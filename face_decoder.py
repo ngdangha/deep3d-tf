@@ -1,8 +1,13 @@
+from numpy.lib.index_tricks import AxisConcatenator
 import tensorflow as tf 
 import math as m
 import numpy as np
 from scipy.io import loadmat
+
 import platform
+import os
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 is_windows = platform.system() == "Windows"
 
@@ -28,17 +33,9 @@ class BFM():
 		self.skin_mask = tf.squeeze(tf.constant(model['skinmask'])) # vertex indices for pre-defined skin region to compute reflectance loss
 		self.keypoints = tf.squeeze(tf.constant(model['keypoints'])) # vertex indices for 68 landmarks. starts from 1. [68,1]
 
-		# np_mean = np.loadtxt('output/mean_shape/25_mean.txt', dtype='f', delimiter= ' ')
-		# np_mean = np.reshape(np_mean, (-1, 107127))
-		# self.tf_mean = tf.constant(np_mean)
-
-# fm = BFM()
-# print(fm.meanshape.get_shape())
-
-# np_mean = np.loadtxt('output/mean_shape/25_mean.txt', dtype='f', delimiter= ' ')
-# np_mean = np.reshape(np_mean, (-1, 107127))
-# tf_mean = tf.constant(np_mean)
-# print(tf_mean.get_shape())
+		np_mean = np.loadtxt('mean/male_mean.txt', dtype='f', delimiter= ' ')
+		np_mean = np.reshape(np_mean, (-1, 107127))
+		self.tf_mean = tf.constant(np_mean)
 
 # Analytic 3D face
 class Face3D():
@@ -103,43 +100,40 @@ class Face3D():
 
 		return id_coeff,ex_coeff,tex_coeff,angles,translation,gamma,camera_scale,f_scale
 
-	# def Split_coeff(self,coeff):
-
-	# 	id_coeff = coeff[:,:199]
-	# 	ex_coeff = coeff[:,199:278]
-	# 	tex_coeff = coeff[:,278:477]
-	# 	angles = coeff[:,477:480]
-	# 	gamma = coeff[:,480:507]
-	# 	translation = coeff[:,507:510]
-	# 	camera_scale = tf.ones([tf.shape(coeff)[0],1])
-	# 	f_scale = tf.ones([tf.shape(coeff)[0],1])
-
-	# 	return id_coeff,ex_coeff,tex_coeff,angles,translation,gamma,camera_scale,f_scale
-
 	def Shape_formation_block(self,id_coeff,ex_coeff,facemodel):
-		# face_shape = tf.einsum('ij,aj->ai',facemodel.idBase,id_coeff) 
+		# face_shape = tf.einsum('ij,aj->ai',facemodel.idBase,id_coeff) + facemodel.meanshape
+
+		face_shape = tf.einsum('ij,aj->ai',facemodel.idBase,id_coeff) + facemodel.tf_mean
 
 		# face_shape = tf.einsum('ij,aj->ai',facemodel.exBase,ex_coeff) 
 
 		# face_shape = facemodel.meanshape
 
-		face_shape = tf.einsum('ij,aj->ai',facemodel.idBase,id_coeff) + tf.einsum('ij,aj->ai',facemodel.exBase,ex_coeff) \
-					+ facemodel.meanshape
+		# face_shape = facemodel.tf_mean
+
+		# face_shape = tf.einsum('ij,aj->ai',facemodel.idBase,id_coeff) + tf.einsum('ij,aj->ai',facemodel.exBase,ex_coeff) \
+		# 			+ facemodel.meanshape
 
 		# face_shape = tf.einsum('ij,aj->ai',facemodel.idBase,id_coeff) + tf.einsum('ij,aj->ai',facemodel.exBase,ex_coeff) \
 		# 			+ facemodel.tf_mean
 
-		# zero = np.zeros((1, 64), dtype='float32')
-		# zero[0][0] = 0
-		# zero = tf.constant(zero)
-		# face_shape = tf.einsum('ij,aj->ai',facemodel.exBase,zero) + facemodel.meanshape
-
 		# reshape face shape to [batchsize,N,3]
 		face_shape = tf.reshape(face_shape,[tf.shape(face_shape)[0],-1,3])
+
 		# re-centering the face shape with mean shape
-		face_shape = face_shape - tf.reshape(tf.reduce_mean(tf.reshape(facemodel.meanshape,[-1,3]),0),[1,1,3])
+		# face_shape = face_shape - tf.reshape(tf.reduce_mean(tf.reshape(facemodel.meanshape,[-1,3]),0),[1,1,3])
+
+		face_shape = face_shape - tf.reshape(tf.reduce_mean(tf.reshape(facemodel.tf_mean,[-1,3]),0),[1,1,3])
 
 		return face_shape
+
+	def Rigid_transform_block(self,face_shape,rotation,translation):
+		# do rigid transformation for 3D face shape
+		face_shape_r = tf.matmul(face_shape,rotation)
+		face_shape_t = face_shape_r + tf.reshape(translation,[tf.shape(face_shape)[0],1,3])
+		# face_shape_t = face_shape + tf.reshape(translation,[tf.shape(face_shape)[0],1,3])
+
+		return face_shape_r
 
 	def Compute_norm(self,face_shape,facemodel):
 		shape = face_shape
@@ -158,12 +152,12 @@ class Face3D():
 		e2 = v2 - v3
 		face_norm = tf.cross(e1,e2)
 
-		face_norm = tf.nn.l2_normalize(face_norm, dim = 2) # normalized face_norm first
+		face_norm = tf.nn.l2_normalize(face_norm, axis = 2) # normalized face_norm first
 		face_norm = tf.concat([face_norm,tf.zeros([tf.shape(face_shape)[0],1,3])], axis = 1)
 
 		#compute normal for each vertex using one-ring neighborhood
 		v_norm = tf.reduce_sum(tf.gather(face_norm, point_id, axis = 1), axis = 2)
-		v_norm = tf.nn.l2_normalize(v_norm, dim = 2)
+		v_norm = tf.nn.l2_normalize(v_norm, axis = 2)
 		
 		return v_norm
 
@@ -173,11 +167,6 @@ class Face3D():
 		# face_texture = facemodel.meantex
 
 		face_texture = tf.einsum('ij,aj->ai',facemodel.texBase,tex_coeff) + facemodel.meantex
-
-		# zero = np.zeros((1, 80), dtype='float32')
-		# zero[0][0] = 1
-		# zero = tf.constant(zero)
-		# face_texture = tf.einsum('ij,aj->ai',facemodel.texBase,zero)
 
 		# reshape face texture to [batchsize,N,3], note that texture is in RGB order
 		face_texture = tf.reshape(face_texture,[tf.shape(face_texture)[0],-1,3])
@@ -254,7 +243,6 @@ class Face3D():
 		# [batchsize, N,2] 2d face projection
 		face_projection = aug_projection[:,:,0:2]/tf.reshape(aug_projection[:,:,2],[tf.shape(face_shape)[0],tf.shape(aug_projection)[1],1])
 
-
 		return face_projection
 
 
@@ -301,13 +289,6 @@ class Face3D():
 		face_color = tf.stack([color_r*face_texture[:,:,0],color_g*face_texture[:,:,1],color_b*face_texture[:,:,2]],axis = 2)
 
 		return face_color
-
-	def Rigid_transform_block(self,face_shape,rotation,translation):
-		# do rigid transformation for 3D face shape
-		face_shape_r = tf.matmul(face_shape,rotation)
-		face_shape_t = face_shape_r + tf.reshape(translation,[tf.shape(face_shape)[0],1,3])
-
-		return face_shape_t
 
 	def Render_block(self,face_shape,face_norm,face_color,camera_scale,f_scale,facemodel,batchsize,is_train=True):
 		if is_train and is_windows:

@@ -8,6 +8,7 @@ import os
 import glob
 import tensorflow as tf
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 #calculating least square problem
@@ -24,7 +25,7 @@ def POS(xp,x):
 
 	b = np.reshape(xp.transpose(),[2*npts,1])
 
-	k,_,_,_ = np.linalg.lstsq(A,b)
+	k,_,_,_ = np.linalg.lstsq(A,b,rcond=None)
 
 	R1 = k[0:3]
 	R2 = k[4:7]
@@ -71,7 +72,7 @@ def align_img(img,lm,lm3D):
 	# processing the image
 	img_new,lm_new = resize_n_crop_img(img,lm,t,s)
 	lm_new = np.stack([lm_new[:,0],223 - lm_new[:,1]], axis = 1)
-	trans_params = np.array([w0,h0,102.0/s,t[0],t[1]])
+	trans_params = np.array([w0,h0,102.0/s,t[0],t[1]], dtype=object)
 
 	return img_new,lm_new,trans_params
 
