@@ -1,7 +1,7 @@
 ## Accurate 3D Face Reconstruction with Weakly-Supervised Learning: From Single Image to Image Set ##
 
 <p align="center"> 
-<img src="/images/example.gif">
+<img src="/images/Paper/example.gif">
 </p>
 
 Clone from original Github: [Deep3DFaceReconstruction](https://github.com/microsoft/Deep3DFaceReconstruction)
@@ -34,19 +34,19 @@ The method reconstructs faces with high accuracy. Quantitative evaluations (shap
 ### ● High fidelity textures
 The method produces high fidelity face textures meanwhile preserves identity information of input images. Scene illumination is also disentangled to generate a pure albedo.
 <p align="center"> 
-<img src="/images/albedo.png">
+<img src="/images/Paper/albedo.png">
 </p>
 
 ### ● Robust
 The method can provide reasonable results under extreme conditions such as large pose and occlusions.
 <p align="center"> 
-<img src="/images/extreme.png">
+<img src="/images/Paper/extreme.png">
 </p>
 
 ### ● Aligned with images
 Our method aligns reconstruction faces with input images. It provides face pose estimation and 68 facial landmarks which are useful for other tasks. We conduct an experiment on AFLW_2000 dataset (NME) to evaluate the performance, as shown in the table below:
 <p align="center"> 
-<img src="/images/alignment.png">
+<img src="/images/Paper/alignment.png">
 </p>
 
 |Method|[0°,30°]|[30°,60°]|[60°,90°]|Overall|
@@ -202,7 +202,7 @@ Upload the training code for single image face reconstruction.
 
 2. We assume a [pinhole camera model](https://en.wikipedia.org/wiki/Pinhole_camera_model) for face projection. The camera is positioned at (0,0,10) (dm) in the world coordinate and points to the negative z axis. We set the camera fov to 12.6 empirically and fix it during training and inference time. Faces in canonical views are at the origin of the world coordinate and facing the positive z axis. Rotations and translations predicted by the R-Net are all with respect to the world coordinate.
 <p align="center"> 
-<img src="/images/camera.png" width="300">
+<img src="/images/Paper/camera.png" width="300">
 </p>
 
 3. The current model is trained using 3-channel (r,g,b) scene illumination instead of white light described in the paper. As a result, the gamma coefficient that controls lighting has a dimension of 27 instead of 9. 
